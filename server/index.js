@@ -2,7 +2,7 @@ const express = require("express");
 const PORT = 8080;
 const app = express();
 
-app.get("/apisa", (req, res) => {
+app.get("/api", (req, res) => {
   res.json({ msg: "hello there" });
 });
 
