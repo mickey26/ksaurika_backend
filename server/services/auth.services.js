@@ -1,6 +1,12 @@
 const bcrypt = require("bcrypt");
 const salt = 10;
-const { signupModel, loginModel } = require("../models/auth.model");
+const {
+  signupModel,
+  loginModel,
+  uploadPostModel,
+  getAllPostModel,
+  getPostsCategoryModel,
+} = require("../models/auth.model");
 var jwt = require("jsonwebtoken");
 
 async function signupService(email, username, password, callBackCon) {
@@ -16,16 +22,12 @@ async function signupService(email, username, password, callBackCon) {
 async function loginService(email, password, callBackCon) {
   let tempPassword = password;
   const status = await loginModel(email, password, (result, err) => {
-    console.log(result, "condition result");
     if (result !== null) {
       bcrypt.compare(tempPassword, result.password, function (errr, re, token) {
         if (errr) {
-          console.log(errr, "encrut");
           callBackCon(err, null, null);
         } else {
-          console.log(re, "encrut");
           let token = jwt.sign({ email: email, password: password }, "token");
-          console.log(token, "token");
           callBackCon(null, re, token);
         }
       });
@@ -35,7 +37,39 @@ async function loginService(email, password, callBackCon) {
   });
 }
 
+async function postUploadService(post, callbackCon) {
+  let status = await uploadPostModel(post, (error, res) => {
+    if (error) {
+      callbackCon(error, null);
+    } else {
+      callbackCon(null, res);
+    }
+  });
+}
+
+async function getAllPostsService(callBackCon) {
+  await getAllPostModel((error, response) => {
+    if (error) {
+      callBackCon(error, null);
+    } else {
+      callBackCon(null, response);
+    }
+  });
+}
+async function getPostsCategoryService(callBackCon) {
+  await getPostsCategoryModel((error, response) => {
+    if (error) {
+      callBackCon(error, null);
+    } else {
+      callBackCon(null, response);
+    }
+  });
+}
+
 module.exports = {
   signupService,
   loginService,
+  postUploadService,
+  getAllPostsService,
+  getPostsCategoryService,
 };

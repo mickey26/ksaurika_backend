@@ -1,8 +1,13 @@
-const { signupService, loginService } = require("../services/auth.services");
+const {
+  signupService,
+  loginService,
+  postUploadService,
+  getAllPostsService,
+  getPostsCategoryService,
+} = require("../services/auth.services");
 
 async function signup(req, res, next) {
   const { email, username, password } = req.body;
-  console.log(req.body, "test2");
   try {
     if (!email) {
       return res.status(401).json({ message: "Email field required" });
@@ -16,7 +21,6 @@ async function signup(req, res, next) {
         username,
         password,
         (error, result) => {
-          console.log(error, result, "evert");
           if (result) {
             return res
               .status(200)
@@ -34,7 +38,6 @@ async function signup(req, res, next) {
 
 async function login(req, res) {
   const { email, password } = req.body;
-  console.log(req, "test");
   try {
     if (!email) {
       return res.status(401).json({ message: "Email required" });
@@ -60,7 +63,69 @@ async function login(req, res) {
   }
 }
 
+async function uploadPost(req, res) {
+  const {
+    user_id,
+    post_title,
+    post_subheading,
+    post_imgurl,
+    post_author,
+    post_category,
+    post_content,
+  } = req.body;
+  let post = req.body;
+  if (
+    !user_id ||
+    !post_title ||
+    !post_subheading ||
+    !post_imgurl ||
+    !post_author ||
+    !post_category ||
+    !post_content
+  ) {
+    return res
+      .status(401)
+      .json({ message: "Please fill the mandatory required" });
+  } else {
+    await postUploadService(post, (error, response) => {
+      if (error) {
+        res.status(401).json({ message: "Something went wrong" });
+      } else {
+        res.status(200).json({ message: "Post added successfully" });
+      }
+    });
+  }
+}
+
+async function getAllPosts(req, res) {
+  console.log(res, "req");
+  await getAllPostsService((error, response) => {
+    if (error) {
+      res.status(401).json({ message: "Something Went Wrong" });
+    } else {
+      res.status(200).json({ message: "Success", data: response });
+    }
+  });
+}
+async function getPostsCategory(req, res) {
+  console.log(res, "req");
+  try {
+    let result = await getPostsCategoryService((error, response) => {
+      if (error) {
+        res.status(401).json({ message: "Something Went Wrong" });
+      } else {
+        res.status(200).json({ message: "Success", data: response });
+      }
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "something went wrong" });
+  }
+}
+
 module.exports = {
   signup,
   login,
+  uploadPost,
+  getAllPosts,
+  getPostsCategory,
 };

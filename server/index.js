@@ -6,11 +6,11 @@ const bcrypt = require("bcrypt");
 const salt = 10;
 const mysql = require("mysql");
 const { json } = require("body-parser");
-const { signup } = require("./controllers/auth.controller");
+// const { signup } = require("./controllers/auth.controller");
 const auth = require("./routes/auth.routes");
 const connection = mysql.createConnection({
   host: "localhost",
-  user: "root",
+  user: "newuser",
   password: "password",
   database: "ksaurika",
 });
@@ -46,8 +46,6 @@ app.get("/login_auth", (req, res) => {
     });
   });
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`App is running on ${PORT}`);
