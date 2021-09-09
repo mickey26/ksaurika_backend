@@ -27,7 +27,6 @@ async function signupModel(email, username, password, callBack) {
           callBack(err, null);
         } else {
           const que = `INSERT INTO signup_user_tb(email,user_name,password) VALUES ( "${email}", "${username}", "${hash}")`;
-          console.log(que, "newdata");
           connection.query(que, (error, results) => {
             if (error) {
               error = {
@@ -46,7 +45,7 @@ async function signupModel(email, username, password, callBack) {
 }
 
 async function loginModel(email, password, callback) {
-  let query = `SELECT email,password FROM signup_user_tb WHERE EMAIL = "${email}";`;
+  let query = `SELECT email,password,user_id,user_name FROM signup_user_tb WHERE EMAIL = "${email}";`;
   connection.query(query, (error, result) => {
     if (error) {
       callback(null, error);
@@ -62,18 +61,17 @@ async function loginModel(email, password, callback) {
 
 async function uploadPostModel(post, callback) {
   // handle Date functionlity
-  console.log(post, "vbjdsbjvb");
+
   const date = new Date();
   let day, month, year, currDate, query;
   day = date.getDate();
   month = date.getMonth();
   year = date.getFullYear();
   currDate = year + "-" + month + "-" + day;
-  console.log(currDate, "date statuses");
-  query = `INSERT INTO posts(user_id,post_title,post_subheading,post_author,post_category,post_content,created_at,post_imgurl) VALUES ("${post.user_id}","${post.post_title}","${post.post_subheading}","${post.post_author}","${post.post_category}","${post.post_content}",Now(),"${post.post_imgurl}")`;
+
+  query = `INSERT INTO posts(user_id,post_title,post_subheading,post_author,post_category,post_content,created_at,post_imgurl) VALUES ("${post.userId}","${post.postTitle}","${post.postSubHeading}","${post.postAuthor}","${post.postCategory}","${post.postContent}",Now(),"${post.postImgUrl}")`;
   connection.query(query, (error, response) => {
     if (error) {
-      console.log(error, "error in uploac");
       callback(error, null);
     } else {
       callback(null, response);

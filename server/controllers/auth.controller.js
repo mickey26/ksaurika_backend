@@ -4,6 +4,7 @@ const {
   postUploadService,
   getAllPostsService,
   getPostsCategoryService,
+  photoUploadAws,
 } = require("../services/auth.services");
 
 async function signup(req, res, next) {
@@ -47,11 +48,12 @@ async function login(req, res) {
       let result = await loginService(
         email,
         password,
-        (eror, result, token) => {
+        (eror, result, token, user_id, user_name) => {
           if (result) {
-            return res
-              .status(200)
-              .json({ message: "Success", data: { email, token } });
+            return res.status(200).json({
+              message: "Success",
+              data: { email, token, user_id, user_name },
+            });
           } else {
             res.status(400).json({ message: "Incorrect Email or Password" });
           }
@@ -63,28 +65,42 @@ async function login(req, res) {
   }
 }
 
-async function uploadPost(req, res) {
+async function uploadPhoto(req, res) {
+  const file = req.file;
+  await photoUploadAws(file, (error, data) => {
+    if (error) {
+      return res.status(400).json({ message: "Something Went wrong" });
+    } else {
+      let dataUrl = data;
+      return res
+        .status(200)
+        .json({ message: "photo added successfully", data: data });
+    }
+  });
+}
+async function postCreate(req, res) {
+  console.log(req, "create post");
   const {
-    user_id,
-    post_title,
-    post_subheading,
-    post_imgurl,
-    post_author,
-    post_category,
-    post_content,
+    userId,
+    postTitle,
+    postSubHeading,
+    postImgUrl,
+    postAuthor,
+    postCategory,
+    postContent,
   } = req.body;
   let post = req.body;
   if (
-    !user_id ||
-    !post_title ||
-    !post_subheading ||
-    !post_imgurl ||
-    !post_author ||
-    !post_category ||
-    !post_content
+    !userId ||
+    !postTitle ||
+    !postSubHeading ||
+    !postImgUrl ||
+    !postAuthor ||
+    !postCategory ||
+    !postContent
   ) {
     return res
-      .status(401)
+      .status(402)
       .json({ message: "Please fill the mandatory required" });
   } else {
     await postUploadService(post, (error, response) => {
@@ -98,7 +114,6 @@ async function uploadPost(req, res) {
 }
 
 async function getAllPosts(req, res) {
-  console.log(res, "req");
   await getAllPostsService((error, response) => {
     if (error) {
       res.status(401).json({ message: "Something Went Wrong" });
@@ -108,7 +123,6 @@ async function getAllPosts(req, res) {
   });
 }
 async function getPostsCategory(req, res) {
-  console.log(res, "req");
   try {
     let result = await getPostsCategoryService((error, response) => {
       if (error) {
@@ -121,11 +135,17 @@ async function getPostsCategory(req, res) {
     return res.status(500).json({ message: "something went wrong" });
   }
 }
+async function getPostsByCategory(req, res) {
+  console.log(req.body, "kkb");
+  res.status(200).json({ message: "Success" });
+}
 
 module.exports = {
   signup,
   login,
-  uploadPost,
+  uploadPhoto,
   getAllPosts,
   getPostsCategory,
+  postCreate,
+  getPostsByCategory,
 };
